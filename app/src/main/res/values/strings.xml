@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">Face Detection and Recognition - URVRV</string>
+    <string name="title_activity_main">Face Detection and Recognition</string>
+    <string name="glass_voice_trigger">Computer Vision</string>
+    <string name="capture_camera">Camera Capture</string>
+    <string name="image_manipulation">Image Manipulation</string>
+    <string name="resolutions">Available Resolutions</string>
+    <string name="fps_ranges">Available FPS Ranges</string>
+    <string name="title_activity_static_images">StaticImagesActivity</string>
+    <string name="detect_faces">Detect faces</string>
+    <string name="detect_faces_with">Detect faces with </string>
+    <string name="no_face">No face detected</string>
+    <string name="tap_choose_picture">Tap to choose another picture</string>
+    <string name="toggle_face_detection">Camera Detection</string>
+    <string name="lbp_classifier">LBP Classifier</string>
+    <string name="haar_classifier">HAAR Classifier</string>
+    <string name="toggle_face_detection_on">On</string>
+    <string name="toggle_face_detection_off">Off</string>
+    <string name="camera_image">Camera Image</string>
+    <string name="tap_to_capture">Tap to capture another picture from camera</string>
+    <string name="predict_face">Predict face</string>
+    <string name="train_face">Train face</string>
+    <string name="face_name">Face</string>
+    <string name="say_name">Say a Name</string>
+    <string name="face_result_format">Face belongs to %1$s!</string>
+    <string name="successfully_train">You have successfully trained a face.</string>
+    <string name="face_recognition">Face Recognition</string>
+    <string name="clear_database_recognition">Clear Database</string>
+    <string name="current_names">Current Names</string>
+    <string name="no_names_there">There are no names.</string>
+    <string name="you_need_to_train">You need to train first.</string>
+    <string name="no_names_database">There are no names in database.</string>
+    <string name="faces_database">Names in database are: </string>
+    <string name="face_detection">Face Detection</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_faces">FacesActivity</string>
+</resources>
