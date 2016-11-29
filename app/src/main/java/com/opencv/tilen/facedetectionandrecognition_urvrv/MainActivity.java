@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.hardware.Camera;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.Debug;
 import android.speech.tts.TextToSpeech;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -32,6 +33,8 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * An {@link Activity} showing a tuggable "Hello World!" card.
@@ -122,14 +125,36 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         mGestureDetector = new Gestures(this, this);
         rlMainActivity = (RelativeLayout) findViewById(R.id.rlMainActivity);
         mOpenCvCameraView = (MyJavaCameraView) findViewById(R.id.tutorial1_activity_java_surface_view);
-        //mSlider.from(rlMainActivity);
+        //mSlider.froms(rlMainActivity);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
         mOpenCvCameraView.setCvCameraViewListener(this);
         isSubmenuAdded = false;
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() { // Function runs every MINUTES minutes.
+                // Run the code you want here
+                checker();
+            }
+        }, 1000 * 30);
+
        /* Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),
                 R.drawable.test_image_0);
         ivPicture.setImageBitmap(bitmap);*/
 
+    }
+
+    public void checker() {
+        checkFaces();
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() { // Function runs every MINUTES minutes.
+                // Run the code you want here
+                checker();
+            }
+        }, 1000 * 30);
     }
 
     @Override
@@ -383,6 +408,21 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     @Override
     public void onThreeTap() {
         checkFacesOnImage();
+//        // imitating sound for clicking
+//        AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//        mAudioManager.playSoundEffect(Sounds.TAP);
+//        // mOpenCvCameraView needs to be enabled and we can not do this in onManagerConnected (mCamera is null)
+//        if(cameraResolutions == null) {
+//            cameraResolutions = mOpenCvCameraView.getResolutionList();
+//            removeUnWantedResolutions();
+//        }
+//        if(cameraFpsRanges == null)
+//        {
+//            cameraFpsRanges = mOpenCvCameraView.getPreviewFpsRangeList();
+//        }
+//        // beacuse of lag, we disable when navigation on Menu
+//        mOpenCvCameraView.disableView();
+//        openOptionsMenu();
     }
 
 
@@ -410,6 +450,30 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     {
         mOpenCvCameraView.enableView();
         mOpenCvCameraView.setCurrentZoom(zoom); // little camera hop (not cute)
+    }
+
+    private void checkFaces() {
+        // we can clone image before we disable view (probably it's still accessible)
+        currentCameraImage = currentCameraImage.clone();
+        mOpenCvCameraView.disableView();
+        //mIndeterminate = mSlider.startIndeterminate();
+        Mat convertedPicture = new Mat();
+        // we need to convert to RGB, because we get BGR value from Camera (also default in OpenCV)
+        // when we load image from resources, it loads as RGB and we don't need to convert
+        Imgproc.cvtColor(currentCameraImage,convertedPicture,Imgproc.COLOR_BGRA2RGB);
+        Mat[] faceImages = faceDetection.getFaces(convertedPicture);
+
+        if(faceImages == null || faceImages[0] == null) {
+            mOpenCvCameraView.enableView();
+            return;
+        }
+        MyUtils.saveBitmaps(faceImages, this); // it takes some time (not the best)
+        Intent intent = new Intent(this, FaceRecognitionActivity.class);
+        intent.putExtra(FacesActivity.RESOURCENAME, getString(R.string.camera_image));
+        intent.putExtra(FacesActivity.FACENUMBER, faceImages.length);
+        //mIndeterminate.hide();
+        startActivity(intent);
+
     }
 
     private void checkFacesOnImage() {

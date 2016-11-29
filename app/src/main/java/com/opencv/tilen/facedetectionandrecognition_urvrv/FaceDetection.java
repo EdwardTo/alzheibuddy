@@ -185,4 +185,30 @@ public class FaceDetection {
         return facePictures;
     }
 
+    public Mat[] getFaces(Mat inputPicture) {
+        MatOfRect faceDetectionRectangles = new MatOfRect();
+        inputPicture = inputPicture.clone();
+        faceDetectorCascadeClassifier.detectMultiScale(inputPicture, faceDetectionRectangles);
+        Rect[] rectangles = faceDetectionRectangles.toArray();
+        if (rectangles.length == 0) // not face detected
+            return null;
+        Mat[] facePictures = new Mat[rectangles.length + 1];
+
+        MyUtils.StoreRecs(rectangles);
+        numberOfFacesInCurrentImage = rectangles.length;
+
+
+        facePictures[0] = inputPicture;
+
+        for (int i = 0; i < rectangles.length; i++)
+            facePictures[i + 1] = new Mat(inputPicture, rectangles[i]);
+
+        for (Rect rect : rectangles) {
+            Core.rectangle(inputPicture, rect.tl(), rect.br(), new Scalar(154, 250, 0));
+        }
+
+        //!if there are some error about wrong picture or destroyed clone image!
+        return facePictures;
+    }
+
 }
