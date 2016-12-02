@@ -36,6 +36,8 @@ public class FacesActivity extends Activity {
     private Bitmap[] facePictures;
     private String pictureName;
 
+    private String nameRec;
+
     private static final int SPEECH_REQUEST = 0;
 
     private TextToSpeech textToSpeech;
@@ -135,7 +137,7 @@ public class FacesActivity extends Activity {
                     // bad side - needs internet to work
                     Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
                     intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.say_name));
-                    startActivityForResult(intent, SPEECH_REQUEST);
+                    startActivityForResult(intent, 1);
                     break;
             }
             return true;
@@ -145,15 +147,30 @@ public class FacesActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SPEECH_REQUEST && resultCode == RESULT_OK) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
             List<String> spokenText = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
             Global.InfoDebug("FacesActivity.onActivityResult(): spokenText: " + Arrays.toString(spokenText.toArray()));
             String textFromSpeech = "";
             for(String text :spokenText)
                 textFromSpeech += text + " ";
+
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Say Relationship");
+            nameRec = textFromSpeech;
+            startActivityForResult(intent, 2);
+
+        }
+        else if (requestCode == 2 && resultCode == RESULT_OK) {
+            List<String> spokenText = data.getStringArrayListExtra(
+                    RecognizerIntent.EXTRA_RESULTS);
+            Global.InfoDebug("FacesActivity.onActivityResult(): spokenText: " + Arrays.toString(spokenText.toArray()));
+            String textFromSpeech = "";
+            for(String text :spokenText)
+                textFromSpeech += text + " ";
+
             opencv_core.IplImage iplImage = getCurrentImage();
-            faceRecognition.train(iplImage,textFromSpeech);
+            faceRecognition.train(iplImage, nameRec + "," + textFromSpeech);
             textToSpeech.setSpeechRate(2);
             textToSpeech.speak(getString(R.string.successfully_train),TextToSpeech.QUEUE_FLUSH, // old API level method, since we use 19 is ok (deprecated in 21)
                     null);

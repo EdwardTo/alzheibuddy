@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,21 +51,55 @@ public class FaceRecognitionActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().requestFeature(WindowUtils.FEATURE_VOICE_COMMANDS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        textToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener(){
+
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    textToSpeech.setLanguage(Locale.UK);
+                }
+            }
+        });
+
         faceRecognition = FaceRecognition.getInstance(this);
         initializeFaceImages();
+        textToSpeech.setSpeechRate(1);
 
         opencv_core.IplImage[] iplImages = getImages();
         Mat image = MyUtils.bitmapToMat(facePictures[0]);
+
+        String names = "";
+
         for(int i = 0; i < iplImages.length; i++) {
             String name = faceRecognition.predict(iplImages[i]);
             Core.putText(image, name, MyUtils.GetRecs()[i].tl(), Core.FONT_HERSHEY_COMPLEX, 1.0, new Scalar(0, 255, 0));
+            if(i != 0)
+                names += ", ";
+            names += name;
         }
+
+        final String namestoSay = names;
+
 
         mImage = new ImageView(this);
         mImage.setImageBitmap(MyUtils.matToBitmap(image));
         getWindow().requestFeature(WindowUtils.FEATURE_VOICE_COMMANDS);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(mImage);
+
+        Timer timer2 = new Timer();
+        timer2.schedule(new TimerTask() {
+            @Override
+            public void run() { // Function runs every MINUTES minutes.
+                // Run the code you want here
+                textToSpeech.speak(namestoSay, TextToSpeech.QUEUE_FLUSH, // old API level method, since we use 19 is ok (deprecated in 21)
+                        null);
+                Log.d("asd", namestoSay);
+            }
+        }, 1000 * 3);
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -74,6 +109,8 @@ public class FaceRecognitionActivity extends Activity {
                 finish();
             }
         }, 1000 * 10);
+
+
     }
 
     @Override

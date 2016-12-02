@@ -137,7 +137,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 // Run the code you want here
                 checker();
             }
-        }, 1000 * 30);
+        }, 1000 * 20);
 
        /* Bitmap bitmap = BitmapFactory.decodeResource(this.getResources(),
                 R.drawable.test_image_0);
@@ -154,7 +154,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 // Run the code you want here
                 checker();
             }
-        }, 1000 * 30);
+        }, 1000 * 20);
     }
 
     @Override
@@ -407,7 +407,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
     @Override
     public void onThreeTap() {
-        checkFacesOnImage();
+        checkFaces();
 //        // imitating sound for clicking
 //        AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 //        mAudioManager.playSoundEffect(Sounds.TAP);
@@ -463,16 +463,21 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         Imgproc.cvtColor(currentCameraImage,convertedPicture,Imgproc.COLOR_BGRA2RGB);
         Mat[] faceImages = faceDetection.getFaces(convertedPicture);
 
-        if(faceImages == null || faceImages[0] == null) {
-            mOpenCvCameraView.enableView();
-            return;
+        if(faceImages != null) {
+
+            MyUtils.saveBitmaps(faceImages, this); // it takes some time (not the best)
+            Intent intent = new Intent(this, FaceRecognitionActivity.class);
+            intent.putExtra(FacesActivity.RESOURCENAME, getString(R.string.camera_image));
+            intent.putExtra(FacesActivity.FACENUMBER, faceImages.length);
+            //mIndeterminate.hide();
+            startActivity(intent);
         }
-        MyUtils.saveBitmaps(faceImages, this); // it takes some time (not the best)
-        Intent intent = new Intent(this, FaceRecognitionActivity.class);
-        intent.putExtra(FacesActivity.RESOURCENAME, getString(R.string.camera_image));
-        intent.putExtra(FacesActivity.FACENUMBER, faceImages.length);
-        //mIndeterminate.hide();
-        startActivity(intent);
+        else {
+            AlertDialog alertDialog = new AlertDialog(this, R.drawable.ic_warning_150, R.string.no_face, R.string.tap_to_capture);
+            alertDialog.setCancelable(true);
+            alertDialog.show();
+            showCameraView();
+        }
 
     }
 
